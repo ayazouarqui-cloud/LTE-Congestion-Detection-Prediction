@@ -82,6 +82,17 @@ and:
 
 # 🖥️ Demo
 
+L'application Streamlit permet de parcourir l'ensemble du pipeline d'inférence, depuis la saisie des KPI jusqu'à l'explication de la prédiction.
+
+## 📥 Saisie d'une ligne KPI brute
+
+L'utilisateur peut saisir ou charger les KPI d'une cellule LTE afin de lancer l'analyse.
+
+<p align="center"> <img src="assets/aquision.png" alt="LTE KPI Data Input" width="900"/> </p>
+
+<p align="center"> <i>Interface de saisie d'une ligne de KPI LTE brute.</i> </p>
+
+
 ## 📊 Dashboard
 
 <p align="center">
@@ -421,7 +432,39 @@ The four LightGBM models are serialized using **Joblib** and loaded using:
 Feature engineering is executed at inference time using the same logic applied during training.
 
 ---
+# 🖼️ Screenshots
 
+### Dashboard
+
+![Dashboard](assets/dashboard.png)
+
+### Pipeline complet
+
+![Pipeline](assets/pipeline.png)
+
+### Saisie d'une ligne KPI brute
+
+![Data input](assets/aquision.png)
+
+### Clustering ACP + K-Means
+
+![K-Means](assets/kmeans.png)
+
+### Détection en temps réel
+
+![Detection](assets/detection.png)
+
+### Comparaison des modèles
+
+![Model comparison](assets/model_comparison.png)
+
+### Prédiction multi-horizons (H+1 / H+3 / H+6)
+
+![Prediction](assets/prediction.png)
+
+### Explicabilité SHAP
+
+![SHAP](assets/shap.png)
 # 🛠️ Tech Stack
 
 ### Programming
