@@ -1,0 +1,4 @@
+Classe,Libelle,Nb_Observations,Pct_Observations,Score_Moyen,Seuil_Score_Bas,Seuil_Score_Haut,Centre_PC1,Centre_PC2
+0,Normal,4487339,57.65,0.1461,0.0,0.2956,-0.3321,0.1039
+1,Modere,2938478,37.75,0.4452,0.2956,0.7146,0.3229,-0.2843
+2,Critique,357334,4.59,0.984,0.7146,1.0,1.5037,1.0388
