@@ -1,404 +1,529 @@
-# 📡 Détection et Prédiction de Congestion LTE — Réseau BTS Djezzy
+# 📡 LTE Congestion Detection & Multi-Horizon Prediction
 
-> **Pipeline end-to-end de Machine Learning pour la détection en temps réel et la prédiction multi-horizons de la congestion des cellules radio LTE.**
+### Intelligent Machine Learning Pipeline for LTE Network Monitoring, Congestion Detection & Predictive Network Operations
 
-Projet de fin d'études réalisé dans le cadre du **Master Big Data Analytics — USTHB, Faculté d'Électronique et d'Informatique**.
+<p align="center">
 
-**Réalisé par :**
-👩‍💻 **Zouarqui Aya**
-👩‍💻 **Khettab Wissam**
+**Détection temps réel · Prédiction H+1/H+3/H+6 · Explainable AI · Streamlit**
 
----
+</p>
 
-## 📌 Présentation du projet
+<p align="center">
 
-La congestion des cellules radio constitue un enjeu majeur pour la qualité de service des réseaux mobiles LTE. Une détection tardive peut entraîner une dégradation de l'expérience utilisateur et rendre les actions correctives essentiellement réactives.
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge\&logo=python\&logoColor=white)
+![LightGBM](https://img.shields.io/badge/LightGBM-ML-02569B?style=for-the-badge)
+![Scikit Learn](https://img.shields.io/badge/scikit--learn-ML-F7931E?style=for-the-badge\&logo=scikit-learn\&logoColor=white)
+![SHAP](https://img.shields.io/badge/SHAP-Explainable%20AI-8A2BE2?style=for-the-badge)
+![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge\&logo=streamlit\&logoColor=white)
+![Optuna](https://img.shields.io/badge/Optuna-Optimization-3C3C3C?style=for-the-badge)
 
-Ce projet propose un **système intelligent de détection, de prédiction et d'explicabilité de la congestion LTE**, appliqué aux données du réseau BTS de **Djezzy — Optimum Télécom Algérie**.
+</p>
 
-Le système est capable de :
+<p align="center">
 
-* 🔎 **Détecter** en temps réel l'état de charge d'une cellule LTE
-* 🔮 **Prédire** l'état futur à **H+1, H+3 et H+6**
-* 📊 **Analyser** les principaux indicateurs de performance réseau
-* 💡 **Expliquer** les décisions des modèles grâce à **SHAP**
-* 🖥️ **Visualiser** les résultats à travers une application **Streamlit**
+<a href="#-overview">Overview</a> • <a href="#-demo">Demo</a> • <a href="#-results">Results</a> • <a href="#-architecture">Architecture</a> • <a href="#-methodology">Methodology</a> • <a href="#-installation">Installation</a>
 
-### États de congestion
-
-| État            | Description                                                 |
-| --------------- | ----------------------------------------------------------- |
-| 🟢 **Normal**   | Cellule fonctionnant dans des conditions normales           |
-| 🟠 **Modéré**   | Charge élevée nécessitant une surveillance                  |
-| 🔴 **Critique** | Niveau de congestion important nécessitant une intervention |
+</p>
 
 ---
 
-# 🎯 Objectifs
+# 🚀 Overview
 
-Le projet vise à développer un pipeline complet de Machine Learning permettant de passer d'une supervision **réactive** à une supervision **prédictive**.
+**LTE-Congestion-Detection-Prediction** is an end-to-end Machine Learning project designed to transform **reactive LTE network monitoring into predictive network intelligence**.
 
-### Objectifs principaux
+The system analyzes hourly Radio Access Network (RAN) KPIs from a large-scale LTE dataset and performs:
 
-1. **Labelliser automatiquement** les cellules selon leur niveau de congestion.
-2. Développer un modèle performant pour la **détection de congestion**.
-3. Construire des modèles permettant la **prédiction multi-horizons**.
-4. Comparer plusieurs algorithmes de Machine Learning et Deep Learning.
-5. Optimiser les modèles à l'aide de **Optuna**.
-6. Interpréter les prédictions grâce à **SHAP**.
-7. Intégrer les modèles dans une **application web interactive**.
+* 🔎 Real-time congestion detection
+* 🔮 Multi-horizon prediction at **H+1, H+3 and H+6**
+* 📊 LTE KPI analysis and temporal feature engineering
+* 🧠 Machine Learning and Deep Learning model comparison
+* 💡 Explainable AI using SHAP
+* 🖥️ Interactive Streamlit application
 
----
+The project was developed using data from the **Djezzy LTE network — Optimum Télécom Algérie**.
 
-# 📊 Données
+> 🎓 **Final Year Project — Master Big Data Analytics, USTHB — 2025/2026**
 
-Le jeu de données utilisé contient des mesures horaires provenant du réseau LTE de Djezzy.
-
-| Caractéristique        |                   Valeur |
-| ---------------------- | -----------------------: |
-| 📈 Enregistrements KPI |            **7 783 150** |
-| 📡 Cellules BTS        |               **72 851** |
-| 📅 Période             |      **26–31 mars 2026** |
-| 🌍 Couverture          | **58 wilayas d'Algérie** |
-| 📊 KPI radio           |        **8 indicateurs** |
-| 🕐 Granularité         |              **Horaire** |
-
-Les indicateurs comprennent notamment :
-
-* Taux d'utilisation **PRB**
-* Disponibilité cellulaire
-* Taux de succès d'établissement LTE
-* Autres indicateurs de performance radio
-
-> ⚠️ Les données brutes ne sont pas incluses dans ce dépôt pour des raisons de **confidentialité opérateur**.
->
-> Le schéma des données et la description des colonnes sont disponibles dans [`data/README.md`](data/README.md).
+**Authors:** Zouarqui Aya & Khettab Wissam
 
 ---
 
-# 🏗️ Architecture du pipeline
+# 🎯 Project Objective
+
+Traditional network monitoring is mainly reactive:
 
 ```text
-                         ┌─────────────────────┐
-                         │   Données brutes    │
-                         │     KPI LTE         │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │     Nettoyage       │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │         EDA         │
-                         │ Exploration données │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │ Feature Engineering │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │    ACP + K-Means    │
-                         │ Labellisation       │
-                         └──────────┬──────────┘
-                                    │
-                       ┌────────────┴────────────┐
-                       │                         │
-                       ▼                         ▼
-              ┌─────────────────┐      ┌─────────────────────┐
-              │    Détection    │      │ Construction cibles │
-              │   supervisée    │      │    H+1/H+3/H+6      │
-              └────────┬────────┘      └──────────┬──────────┘
-                       │                          │
-                       │                          ▼
-                       │                ┌─────────────────────┐
-                       │                │    Prédiction      │
-                       │                │    multi-horizons   │
-                       │                └──────────┬──────────┘
-                       │                           │
-                       └─────────────┬─────────────┘
-                                     │
-                                     ▼
-                         ┌─────────────────────┐
-                         │       SHAP          │
-                         │  Explicabilité IA   │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │     Streamlit       │
-                         │ Application Web     │
-                         └─────────────────────┘
+Congestion occurs
+       ↓
+Network degradation
+       ↓
+Problem detected
+       ↓
+Operator intervention
+```
+
+This project aims to move toward predictive network operations:
+
+```text
+Historical LTE KPIs
+       ↓
+Machine Learning
+       ↓
+Current network state
+       ↓
+Future congestion risk
+       ↓
+Early intervention
+```
+
+The system therefore answers two questions:
+
+> **Is this LTE cell currently congested?**
+
+and:
+
+> **Will this cell become congested in the next 1, 3 or 6 hours?**
+
+---
+
+# 🖥️ Demo
+
+## Dashboard
+
+<p align="center">
+  <img src="assets/dashboard.png" alt="LTE Congestion Dashboard" width="900"/>
+</p>
+
+*Interactive Streamlit dashboard for LTE network monitoring.*
+
+---
+
+## 🔎 Congestion Detection
+
+<p align="center">
+  <img src="assets/detection.png" alt="LTE Congestion Detection" width="900"/>
+</p>
+
+*Real-time classification of LTE cell congestion.*
+
+---
+
+## 🔮 Multi-Horizon Prediction
+
+<p align="center">
+  <img src="assets/prediction.png" alt="H+1 H+3 H+6 Prediction" width="900"/>
+</p>
+
+*Prediction of future congestion states at H+1, H+3 and H+6.*
+
+---
+
+## 💡 Explainable AI — SHAP
+
+<p align="center">
+  <img src="assets/shap.png" alt="SHAP Explainability" width="900"/>
+</p>
+
+*SHAP-based explanation of the model prediction.*
+
+---
+
+# 🏗️ Architecture
+
+<p align="center">
+  <img src="assets/pipeline.png" alt="Machine Learning Pipeline Architecture" width="950"/>
+</p>
+
+The complete pipeline is organized as:
+
+```text
+LTE KPI Data
+     │
+     ▼
+Data Cleaning
+     │
+     ▼
+Exploratory Data Analysis
+     │
+     ▼
+Feature Engineering
+     │
+     ▼
+PCA + K-Means
+     │
+     ├──────────────────────┐
+     ▼                      ▼
+Current Detection     Target Construction
+     │                   H+1/H+3/H+6
+     │                      │
+     │                      ▼
+     │                Future Prediction
+     │                      │
+     └──────────┬───────────┘
+                ▼
+              SHAP
+                │
+                ▼
+            Streamlit
 ```
 
 ---
 
-# 🔬 Méthodologie
+# 📊 Dataset
 
-## 1. Labellisation non supervisée — ACP + K-Means
+The dataset contains hourly measurements from the Djezzy LTE network.
 
-Les données ne disposent pas d'une annotation native indiquant si une cellule est congestionnée.
+| Characteristic         |                Value |
+| ---------------------- | -------------------: |
+| 📈 KPI records         |        **7,783,150** |
+| 📡 LTE cells           |           **72,851** |
+| 🌍 Geographic coverage |       **58 wilayas** |
+| 📅 Period              | **26–31 March 2026** |
+| 📊 Radio KPIs          |                **8** |
+| 🕐 Granularity         |           **Hourly** |
 
-Une approche non supervisée a donc été utilisée afin d'identifier automatiquement les différents niveaux de congestion.
+The KPIs include, among others:
 
-### ACP
+* PRB utilization rate
+* Cell availability
+* LTE establishment success rate
+* Other radio performance indicators
 
-L'Analyse en Composantes Principales permet de réduire la dimensionnalité des données tout en conservant l'essentiel de l'information.
+> 🔐 **Data confidentiality:** Raw operator KPI data is not included in this repository.
 
-**Résultat :**
+The data schema and column descriptions are available in:
 
-* **84,8 %** de variance expliquée
-* **2 composantes principales**
-
-### K-Means
-
-Le clustering K-Means permet d'identifier trois groupes correspondant aux niveaux de congestion.
-
-| Classe      |  Proportion |
-| ----------- | ----------: |
-| 🟢 Normale  | **57,65 %** |
-| 🟠 Modérée  | **37,75 %** |
-| 🔴 Critique |  **4,59 %** |
-
-### Évaluation du clustering
-
-| Métrique             | Résultat |
-| -------------------- | -------: |
-| Silhouette Score     | **0,66** |
-| Davies-Bouldin Index | **0,36** |
-
-Ces résultats indiquent une séparation relativement nette entre les trois groupes.
+```text
+data/README.md
+```
 
 ---
 
-# 🤖 2. Détection supervisée
+# 🔬 Methodology
 
-Après la labellisation, plusieurs modèles de classification supervisée ont été entraînés afin de détecter automatiquement l'état de congestion d'une cellule.
+## 1. Unsupervised Congestion Labeling
 
-### Modèles évalués
+The original dataset does not contain a native congestion label.
 
-Six algorithmes ont été comparés :
+An unsupervised approach was therefore implemented using:
 
+```text
+LTE KPIs
+   ↓
+Standardization
+   ↓
+PCA
+   ↓
+2 Principal Components
+   ↓
+K-Means
+   ↓
+Normal / Moderate / Critical
+```
+
+### PCA
+
+The PCA retained **84.8% of the total variance** using two principal components.
+
+### K-Means
+
+Three congestion classes were identified:
+
+| Class       | Proportion |
+| ----------- | ---------: |
+| 🟢 Normal   | **57.65%** |
+| 🟠 Moderate | **37.75%** |
+| 🔴 Critical |  **4.59%** |
+
+### Clustering evaluation
+
+| Metric               |   Result |
+| -------------------- | -------: |
+| Silhouette Score     | **0.66** |
+| Davies-Bouldin Index | **0.36** |
+
+<p align="center">
+  <img src="assets/kmeans.png" alt="PCA K-Means Clustering" width="850"/>
+</p>
+
+---
+
+# 🤖 2. Supervised Congestion Detection
+
+After automatic labeling, six supervised Machine Learning models were trained to detect the current congestion state.
+
+### Models
+
+* LightGBM
 * XGBoost
 * CatBoost
 * Random Forest
 * HistGradientBoosting
 * MLP
-* **LightGBM**
 
-L'optimisation des hyperparamètres a été réalisée avec **Optuna**, en utilisant une stratégie TPE.
+Hyperparameters were optimized using **Optuna with TPE**.
 
-### Évaluation
+The test set was constructed using a **strict chronological split** to avoid temporal leakage.
 
-Le jeu de test respecte strictement l'ordre chronologique afin d'éviter toute fuite temporelle.
+### Test set
 
-**Nombre d'observations du test set : 1 167 473**
-
-| Modèle               |    F1-macro | F1-classe critique |
-| -------------------- | ----------: | -----------------: |
-| XGBoost              |           — |                  — |
-| CatBoost             |           — |                  — |
-| Random Forest        |           — |                  — |
-| HistGradientBoosting |           — |                  — |
-| MLP                  |           — |                  — |
-| 🏆 **LightGBM**      | **99,94 %** |       **99,997 %** |
-
-### 🏆 Meilleur modèle : LightGBM
-
-Le modèle LightGBM obtient :
-
-* **99,94 % de F1-macro**
-* **99,997 % de F1 sur la classe critique**
-* **+32,76 points** par rapport à une baseline utilisant des seuils fixes
+**1,167,473 observations**
 
 ---
 
-# 🔮 3. Prédiction multi-horizons
+# 📈 Model Benchmark
 
-L'objectif suivant consiste à anticiper l'état futur d'une cellule plutôt que de simplement détecter son état actuel.
+<p align="center">
+  <img src="assets/model_comparison.png" alt="Machine Learning Model Comparison" width="900"/>
+</p>
 
-Trois horizons de prédiction ont été étudiés :
+| Model                |   Accuracy |   F1-macro | Critical F1 | Training Time |
+| -------------------- | ---------: | ---------: | ----------: | ------------: |
+| 🏆 **LightGBM**      | **99.92%** | **99.94%** | **99.997%** |        56 min |
+| CatBoost             |     99.91% |     99.93% |     99.991% |        28 min |
+| HistGradientBoosting |     99.92% |     99.93% |      99.98% |        25 min |
+| MLP                  |     99.92% |     99.93% |      99.98% |       173 min |
+| Random Forest        |     99.89% |     99.91% |      99.99% |       116 min |
+| XGBoost              |     99.63% |     99.72% |      99.97% |        10 min |
+
+### 🏆 Best model: LightGBM
+
+LightGBM achieved:
+
+* **99.92% accuracy**
+* **99.94% F1-macro**
+* **99.997% critical-class F1**
+* **+32.76 percentage points** compared with the fixed-threshold baseline
+
+LightGBM also provides a strong balance between predictive performance and training time.
+
+---
+
+# 🔮 3. Multi-Horizon Prediction
+
+The next objective is to predict future congestion instead of only detecting the current state.
+
+Three prediction horizons were studied:
 
 ```text
-Temps actuel
+Current time
      │
-     ├──────────► H+1
+     ├──────────────► H+1
      │
-     ├──────────────────► H+3
+     ├────────────────────────► H+3
      │
-     └────────────────────────────► H+6
+     └──────────────────────────────────► H+6
 ```
 
-De nouvelles variables temporelles ont été construites afin de capturer l'évolution des KPI dans le temps.
+Temporal features were engineered to capture the evolution of LTE KPIs over time.
 
-### Modèles comparés
+### Models compared
 
-* LSTM avec attention temporelle
-* GRU
 * LightGBM
+* LSTM + Temporal Attention
+* GRU
 
-### Résultats
+### Results
 
-| Horizon | F1-macro LightGBM | F1-classe critique |
-| ------- | ----------------: | -----------------: |
-| **H+1** |       **96,16 %** |      **≥ 98,73 %** |
-| **H+3** |       **93,58 %** |      **≥ 98,73 %** |
-| **H+6** |       **92,12 %** |      **≥ 98,73 %** |
+| Horizon    |   F1-macro |  Critical F1 |
+| ---------- | ---------: | -----------: |
+| 🔵 **H+1** | **96.16%** | ≥ **98.73%** |
+| 🟣 **H+3** | **93.58%** | ≥ **98.73%** |
+| 🔴 **H+6** | **92.12%** | ≥ **98.73%** |
 
-### Résultat principal
+LightGBM outperformed the recurrent architectures across the three horizons.
 
-**LightGBM surpasse les architectures récurrentes LSTM-Attention et GRU sur les trois horizons étudiés.**
-
-La performance diminue progressivement lorsque l'horizon augmente, ce qui est cohérent avec la difficulté croissante de prédire l'évolution future du trafic réseau.
-
----
-
-# 💡 4. Explicabilité avec SHAP
-
-La performance seule ne suffit pas pour une utilisation opérationnelle dans un environnement réseau.
-
-Le projet intègre **SHAP (SHapley Additive exPlanations)** afin d'expliquer les prédictions produites par les modèles.
-
-### Principaux facteurs identifiés
-
-#### 🟢 Normal / 🟠 Modéré
-
-Le **taux d'utilisation des PRB** constitue le principal facteur discriminant.
-
-#### 🔴 Critique
-
-Les facteurs les plus influents comprennent notamment :
-
-* Disponibilité cellulaire
-* Taux de succès d'établissement LTE
-
-L'utilisateur peut ainsi comprendre **pourquoi une cellule a été classée comme critique** plutôt que de recevoir uniquement une prédiction.
+As expected, predictive performance decreases gradually as the forecasting horizon increases.
 
 ---
 
-# 🖥️ 5. Application Streamlit
+# 💡 4. Explainable AI with SHAP
 
-Une application web développée avec **Streamlit** permet d'utiliser les modèles sans nécessiter d'expertise en Data Science.
+A high-performing model is not sufficient for operational network environments.
 
-L'application automatise le pipeline :
+Network engineers need to understand **why** a cell has been classified as congested.
+
+The project therefore integrates **SHAP — SHapley Additive exPlanations**.
+
+### Main explanatory features
+
+**Normal / Moderate**
+
+> PRB utilization is the main discriminating feature.
+
+**Critical**
+
+> Cell availability and LTE establishment success rate are among the most influential features.
+
+This transforms the output from:
 
 ```text
-KPI bruts
-   │
-   ▼
-Feature Engineering
-   │
-   ▼
-Détection actuelle
-   │
-   ├──► H+1
-   ├──► H+3
-   └──► H+6
-          │
-          ▼
-       SHAP
-          │
-          ▼
-   Explication de la décision
+Prediction: CRITICAL
 ```
 
-### Fonctionnalités
+into:
 
-* 🏠 Page d'accueil
-* 📊 Exploration des données
-* 🔎 Détection de congestion
-* 🔮 Prédiction H+1 / H+3 / H+6
-* 💡 Explicabilité SHAP
-* ⚡ Inférence en temps réel
-* 📦 Chargement des modèles avec cache
+```text
+Prediction: CRITICAL
 
-Les **4 modèles LightGBM** sont sérialisés au format `.pkl` avec `joblib` et chargés en cache grâce à :
+Why?
+
+• High PRB utilization
+• Reduced cell availability
+• LTE establishment degradation
+```
+
+This improves the interpretability and operational usefulness of the system.
+
+---
+
+# 🖥️ 5. Streamlit Application
+
+The project includes an interactive web application built with **Streamlit**.
+
+The application integrates the complete inference pipeline:
+
+```text
+Raw KPI
+   ↓
+Feature Engineering
+   ↓
+Current Detection
+   ↓
+H+1 / H+3 / H+6 Prediction
+   ↓
+SHAP Explanation
+```
+
+### Main features
+
+* 🏠 Dashboard
+* 📊 Exploratory Data Analysis
+* 🔎 Current congestion detection
+* 🔮 Multi-horizon prediction
+* 💡 SHAP explanations
+* 📈 Interactive visualizations
+* ⚡ Cached model inference
+
+The four LightGBM models are serialized using **Joblib** and loaded using:
 
 ```python
 @st.cache_resource
 ```
 
-Le Feature Engineering est également exécuté à la volée afin de reproduire le même pipeline que celui utilisé pendant l'entraînement.
+Feature engineering is executed at inference time using the same logic applied during training.
 
 ---
 
-# 🛠️ Stack technique
+# 🛠️ Tech Stack
 
-### Langage
+## Programming
 
-* 🐍 Python 3.11
+```text
+Python 3.11
+```
 
-### Data Science & Machine Learning
+## Data & Machine Learning
 
-* pandas
-* NumPy
-* scikit-learn
-* LightGBM
-* XGBoost
-* CatBoost
-* Optuna
-* SHAP
+```text
+pandas
+NumPy
+scikit-learn
+LightGBM
+XGBoost
+CatBoost
+Optuna
+```
 
-### Deep Learning
+## Deep Learning
 
-* TensorFlow / PyTorch
-* LSTM
-* GRU
-* Attention temporelle
+```text
+TensorFlow
+PyTorch
+LSTM
+GRU
+Temporal Attention
+```
 
-### Visualisation & Application
+## Explainable AI
 
-* Streamlit
-* Plotly
-* Joblib
+```text
+SHAP
+```
+
+## Visualization & Application
+
+```text
+Streamlit
+Plotly
+Joblib
+```
 
 ---
 
-# 📁 Structure du repository
+# 📁 Repository Structure
 
 ```text
 LTE-Congestion-Detection-Prediction/
 │
 ├── app/
-│   └── app.py
+│   ├── app.py
+│   ├── .streamlit/
+│   │   └── config.toml
+│   └── assets/
+│       └── Application assets
+│
+├── assets/
+│   ├── pipeline.png
+│   ├── dashboard.png
+│   ├── detection.png
+│   ├── prediction.png
+│   ├── shap.png
+│   ├── model_comparison.png
+│   └── kmeans.png
 │
 ├── nettoyage/
-│   └── ...
+│   └── nettoyage.py
 │
 ├── eda/
-│   └── ...
+│   ├── correlation.py
+│   ├── distributionTemporelle.py
+│   ├── B3_distribution_temporelle.png
+│   └── B4_correlations.png
 │
 ├── feature_engineering/
-│   └── ...
+│   └── feautres.py
 │
 ├── acp_kmeans/
-│   └── ...
+│   ├── acpkmeans3.py
+│   ├── coefficients_acp_final.csv
+│   ├── kmeans_final.png
+│   └── kmeans_summary.csv
 │
 ├── detection/
-│   ├── xgboost/
 │   ├── catboost/
-│   ├── random_forest/
 │   ├── histgradientboosting/
+│   ├── lightgbm/
 │   ├── mlp/
-│   └── lightgbm/
+│   ├── random_forest/
+│   └── xgboost/
 │
 ├── target/
-│   └── ...
+│   ├── target.py
+│   ├── test_stationnarite.py
+│   └── rapport_targets_analyse.docx
 │
 ├── prediction/
-│   ├── lstm/
 │   ├── gru/
-│   └── lightgbm/
+│   ├── lightgbm/
+│   └── lstm/
 │
 ├── data/
 │   └── README.md
 │
 ├── requirements.txt
-│
+├── LICENSE
+├── .gitignore
 └── README.md
 ```
 
@@ -406,39 +531,30 @@ LTE-Congestion-Detection-Prediction/
 
 # 🚀 Installation
 
-## 1. Cloner le repository
+## 1. Clone the repository
 
 ```bash
 git clone https://github.com/ayazouarqui-cloud/LTE-Congestion-Detection-Prediction.git
-```
-
-## 2. Accéder au projet
-
-```bash
 cd LTE-Congestion-Detection-Prediction
 ```
 
-## 3. Installer les dépendances
-
-Il est recommandé d'utiliser un environnement virtuel Python.
-
-```bash
-python -m venv .venv
-```
+## 2. Create a virtual environment
 
 ### Windows
 
 ```bash
+python -m venv .venv
 .venv\Scripts\activate
 ```
 
 ### Linux / macOS
 
 ```bash
+python -m venv .venv
 source .venv/bin/activate
 ```
 
-Puis :
+## 3. Install dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -446,98 +562,182 @@ pip install -r requirements.txt
 
 ---
 
-# ▶️ Lancer l'application
+# ▶️ Run the Application
 
-Depuis la racine du projet :
+From the project root:
 
 ```bash
 streamlit run app/app.py
 ```
 
-L'application Streamlit sera ensuite accessible dans votre navigateur.
+The Streamlit application will then be available in your browser.
 
 ---
 
-# 📄 Rapport de projet
+# 🔐 Data Privacy
 
-Le mémoire complet contient :
+The dataset used in this project originates from an operator environment and is subject to confidentiality restrictions.
 
-* L'état de l'art
-* La méthodologie détaillée
-* L'analyse exploratoire
-* Le Feature Engineering
-* La labellisation ACP + K-Means
-* L'optimisation des modèles
-* Les résultats expérimentaux
-* La comparaison des architectures
-* L'analyse SHAP
-* La conception de l'application
+Therefore:
 
-Le rapport principal est disponible dans :
+> **Raw LTE KPI data is not included in this repository.**
+
+The repository contains the project structure, processing scripts, Machine Learning implementations, visualizations and documentation.
+
+For the data schema:
+
+```text
+data/README.md
+```
+
+---
+
+# 📄 Academic Project
+
+This project was developed as a **Final Year Project** for:
+
+### Master Big Data Analytics
+
+**Université des Sciences et de la Technologie Houari Boumediene — USTHB**
+
+**Faculté d'Électronique et d'Informatique**
+
+**Academic Year: 2025–2026**
+
+### Authors
+
+👩‍💻 **Zouarqui Aya**
+
+👩‍💻 **Khettab Wissam**
+
+---
+
+# 📚 Project Documentation
+
+The complete thesis covers:
+
+* State of the art
+* Dataset analysis
+* Data preprocessing
+* Exploratory Data Analysis
+* Feature engineering
+* PCA + K-Means labeling
+* Supervised Machine Learning
+* Optuna optimization
+* Multi-horizon prediction
+* LSTM / GRU comparison
+* SHAP explainability
+* Streamlit application
+
+Main report:
 
 ```text
 target/rapport_targets_analyse.docx
 ```
 
-D'autres rapports détaillés sont disponibles dans les différents répertoires du projet.
+Additional analysis and experimental results are available throughout the repository.
 
 ---
 
-# 🔐 Confidentialité des données
+# 📊 Key Results at a Glance
 
-Les données utilisées dans ce projet proviennent d'un environnement opérateur et sont soumises à des contraintes de confidentialité.
+<p align="center">
 
-Par conséquent :
+| Metric                 |      Result |
+| ---------------------- | ----------: |
+| LTE KPI observations   |  **7.78M+** |
+| LTE cells              |  **72,851** |
+| Wilayas                |      **58** |
+| PCA variance explained |   **84.8%** |
+| Silhouette Score       |    **0.66** |
+| Detection F1-macro     |  **99.94%** |
+| Critical-class F1      | **99.997%** |
+| H+1 F1-macro           |  **96.16%** |
+| H+3 F1-macro           |  **93.58%** |
+| H+6 F1-macro           |  **92.12%** |
 
-> **Les données KPI brutes ne sont pas distribuées dans ce repository.**
-
-Seuls les éléments nécessaires à la compréhension, à la reproduction du pipeline et à l'utilisation de l'application sont fournis.
-
----
-
-# 📈 Principaux résultats
-
-| Étape              | Résultat                         |
-| ------------------ | -------------------------------- |
-| ACP                | **84,8 %** de variance expliquée |
-| K-Means            | **3 classes**                    |
-| Silhouette Score   | **0,66**                         |
-| Davies-Bouldin     | **0,36**                         |
-| Détection LightGBM | **99,94 % F1-macro**             |
-| Classe critique    | **99,997 % F1**                  |
-| H+1                | **96,16 % F1-macro**             |
-| H+3                | **93,58 % F1-macro**             |
-| H+6                | **92,12 % F1-macro**             |
-| Explicabilité      | **SHAP**                         |
-| Interface          | **Streamlit**                    |
+</p>
 
 ---
 
-# 🎓 Contexte académique
+# 💼 Skills Demonstrated
 
-**Projet de fin d'études — Master Big Data Analytics**
+This project covers a complete applied Machine Learning workflow.
 
-**Université des Sciences et de la Technologie Houari Boumediene (USTHB)**
-Faculté d'Électronique et d'Informatique
-Année universitaire **2025–2026**
+### Data Engineering
 
-### Auteurs
+* Large-scale KPI preprocessing
+* Data cleaning
+* Data validation
+* Temporal data processing
+* Feature engineering
 
-**Zouarqui Aya**
-**Khettab Wissam**
+### Machine Learning
+
+* Unsupervised learning
+* K-Means clustering
+* PCA
+* Classification
+* Gradient Boosting
+* Model benchmarking
+* Hyperparameter optimization
+
+### Deep Learning
+
+* LSTM
+* GRU
+* Temporal Attention
+
+### Time-Series / Forecasting
+
+* Temporal feature engineering
+* Chronological train/test splitting
+* Multi-horizon prediction
+* H+1 / H+3 / H+6 forecasting
+
+### Explainable AI
+
+* SHAP
+* Feature importance
+* Local prediction explanations
+
+### Deployment / MLOps
+
+* Model serialization
+* Joblib
+* Cached inference
+* Streamlit application
 
 ---
 
-## ⭐ Remerciements
+# 🌟 Project Vision
 
-Nous remercions l'ensemble des personnes ayant contribué à la réalisation de ce projet ainsi que l'USTHB pour l'encadrement académique fourni dans le cadre du Master Big Data Analytics.
+The long-term objective is to move from reactive network monitoring toward **predictive and explainable network intelligence**.
+
+```text
+Reactive Monitoring
+        ↓
+Machine Learning Detection
+        ↓
+Predictive Network Monitoring
+        ↓
+Explainable AI
+        ↓
+Proactive Network Optimization
+```
+
+The project demonstrates how Machine Learning can be applied to large-scale telecom data to anticipate network congestion before it becomes a major service-quality issue.
 
 ---
 
 <p align="center">
-  <b>Détection intelligente · Prédiction proactive · Explicabilité IA</b>
-  <br>
-  <br>
-  <i>Master Big Data Analytics — USTHB — 2026</i>
-</p>
 
+## 📡 From Network Monitoring to Predictive Network Intelligence
+
+**Machine Learning · Time Series · Telecom · Explainable AI · MLOps**
+
+<br><br>
+
+⭐ **If you find this project interesting, consider giving the repository a star.**
+
+</p>
