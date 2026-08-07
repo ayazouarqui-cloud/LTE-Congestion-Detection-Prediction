@@ -4,24 +4,18 @@
 
 <p align="center">
 
-**Détection temps réel · Prédiction H+1/H+3/H+6 · Explainable AI · Streamlit**
+**Real-Time Detection · H+1/H+3/H+6 Prediction · Explainable AI · Streamlit**
 
 </p>
 
 <p align="center">
 
-![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge\&logo=python\&logoColor=white)
-![LightGBM](https://img.shields.io/badge/LightGBM-ML-02569B?style=for-the-badge)
-![Scikit Learn](https://img.shields.io/badge/scikit--learn-ML-F7931E?style=for-the-badge\&logo=scikit-learn\&logoColor=white)
-![SHAP](https://img.shields.io/badge/SHAP-Explainable%20AI-8A2BE2?style=for-the-badge)
-![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge\&logo=streamlit\&logoColor=white)
-![Optuna](https://img.shields.io/badge/Optuna-Optimization-3C3C3C?style=for-the-badge)
-
-</p>
-
-<p align="center">
-
-<a href="#-overview">Overview</a> • <a href="#-demo">Demo</a> • <a href="#-results">Results</a> • <a href="#-architecture">Architecture</a> • <a href="#-methodology">Methodology</a> • <a href="#-installation">Installation</a>
+[Overview](#-overview) •
+[Demo](#-demo) •
+[Results](#-key-results) •
+[Architecture](#-architecture) •
+[Methodology](#-methodology) •
+[Installation](#-installation)
 
 </p>
 
@@ -88,13 +82,15 @@ and:
 
 # 🖥️ Demo
 
-## Dashboard
+## 📊 Dashboard
 
 <p align="center">
   <img src="assets/dashboard.png" alt="LTE Congestion Dashboard" width="900"/>
 </p>
 
-*Interactive Streamlit dashboard for LTE network monitoring.*
+<p align="center">
+  <i>Interactive Streamlit dashboard for LTE network monitoring.</i>
+</p>
 
 ---
 
@@ -104,7 +100,9 @@ and:
   <img src="assets/detection.png" alt="LTE Congestion Detection" width="900"/>
 </p>
 
-*Real-time classification of LTE cell congestion.*
+<p align="center">
+  <i>Real-time classification of LTE cell congestion.</i>
+</p>
 
 ---
 
@@ -114,7 +112,9 @@ and:
   <img src="assets/prediction.png" alt="H+1 H+3 H+6 Prediction" width="900"/>
 </p>
 
-*Prediction of future congestion states at H+1, H+3 and H+6.*
+<p align="center">
+  <i>Prediction of future congestion states at H+1, H+3 and H+6.</i>
+</p>
 
 ---
 
@@ -124,7 +124,9 @@ and:
   <img src="assets/shap.png" alt="SHAP Explainability" width="900"/>
 </p>
 
-*SHAP-based explanation of the model prediction.*
+<p align="center">
+  <i>SHAP-based explanation of the model prediction.</i>
+</p>
 
 ---
 
@@ -137,34 +139,39 @@ and:
 The complete pipeline is organized as:
 
 ```text
-LTE KPI Data
-     │
-     ▼
-Data Cleaning
-     │
-     ▼
-Exploratory Data Analysis
-     │
-     ▼
-Feature Engineering
-     │
-     ▼
-PCA + K-Means
-     │
-     ├──────────────────────┐
-     ▼                      ▼
-Current Detection     Target Construction
-     │                   H+1/H+3/H+6
-     │                      │
-     │                      ▼
-     │                Future Prediction
-     │                      │
-     └──────────┬───────────┘
-                ▼
-              SHAP
-                │
-                ▼
-            Streamlit
+                         LTE KPI DATA
+                              │
+                              ▼
+                       Data Cleaning
+                              │
+                              ▼
+                  Exploratory Data Analysis
+                              │
+                              ▼
+                    Feature Engineering
+                              │
+                              ▼
+                       PCA + K-Means
+                      Auto Labeling
+                              │
+                 ┌────────────┴────────────┐
+                 │                         │
+                 ▼                         ▼
+        Current Detection          Target Construction
+        6 ML Classifiers              H+1 / H+3 / H+6
+                 │                         │
+                 │                         ▼
+                 │                 Future Prediction
+                 │                  LightGBM / LSTM / GRU
+                 │                         │
+                 └────────────┬────────────┘
+                              ▼
+                            SHAP
+                       Explainability
+                              │
+                              ▼
+                         Streamlit
+                       Web Application
 ```
 
 ---
@@ -235,7 +242,7 @@ Three congestion classes were identified:
 | 🟠 Moderate | **37.75%** |
 | 🔴 Critical |  **4.59%** |
 
-### Clustering evaluation
+### Clustering Evaluation
 
 | Metric               |   Result |
 | -------------------- | -------: |
@@ -265,7 +272,7 @@ Hyperparameters were optimized using **Optuna with TPE**.
 
 The test set was constructed using a **strict chronological split** to avoid temporal leakage.
 
-### Test set
+### Test Set
 
 **1,167,473 observations**
 
@@ -286,7 +293,7 @@ The test set was constructed using a **strict chronological split** to avoid tem
 | Random Forest        |     99.89% |     99.91% |      99.99% |       116 min |
 | XGBoost              |     99.63% |     99.72% |      99.97% |        10 min |
 
-### 🏆 Best model: LightGBM
+### 🏆 Best Model: LightGBM
 
 LightGBM achieved:
 
@@ -317,7 +324,7 @@ Current time
 
 Temporal features were engineered to capture the evolution of LTE KPIs over time.
 
-### Models compared
+### Models Compared
 
 * LightGBM
 * LSTM + Temporal Attention
@@ -345,7 +352,7 @@ Network engineers need to understand **why** a cell has been classified as conge
 
 The project therefore integrates **SHAP — SHapley Additive exPlanations**.
 
-### Main explanatory features
+### Main Explanatory Features
 
 **Normal / Moderate**
 
@@ -395,7 +402,7 @@ H+1 / H+3 / H+6 Prediction
 SHAP Explanation
 ```
 
-### Main features
+### Main Features
 
 * 🏠 Dashboard
 * 📊 Exploratory Data Analysis
@@ -417,13 +424,13 @@ Feature engineering is executed at inference time using the same logic applied d
 
 # 🛠️ Tech Stack
 
-## Programming
+### Programming
 
 ```text
 Python 3.11
 ```
 
-## Data & Machine Learning
+### Data & Machine Learning
 
 ```text
 pandas
@@ -435,7 +442,7 @@ CatBoost
 Optuna
 ```
 
-## Deep Learning
+### Deep Learning
 
 ```text
 TensorFlow
@@ -445,13 +452,13 @@ GRU
 Temporal Attention
 ```
 
-## Explainable AI
+### Explainable AI
 
 ```text
 SHAP
 ```
 
-## Visualization & Application
+### Visualization & Application
 
 ```text
 Streamlit
@@ -531,14 +538,14 @@ LTE-Congestion-Detection-Prediction/
 
 # 🚀 Installation
 
-## 1. Clone the repository
+## 1. Clone the Repository
 
 ```bash
 git clone https://github.com/ayazouarqui-cloud/LTE-Congestion-Detection-Prediction.git
 cd LTE-Congestion-Detection-Prediction
 ```
 
-## 2. Create a virtual environment
+## 2. Create a Virtual Environment
 
 ### Windows
 
@@ -554,7 +561,7 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-## 3. Install dependencies
+## 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -639,9 +646,7 @@ Additional analysis and experimental results are available throughout the reposi
 
 ---
 
-# 📊 Key Results at a Glance
-
-<p align="center">
+# 📊 Key Results
 
 | Metric                 |      Result |
 | ---------------------- | ----------: |
@@ -656,15 +661,13 @@ Additional analysis and experimental results are available throughout the reposi
 | H+3 F1-macro           |  **93.58%** |
 | H+6 F1-macro           |  **92.12%** |
 
-</p>
-
 ---
 
 # 💼 Skills Demonstrated
 
 This project covers a complete applied Machine Learning workflow.
 
-### Data Engineering
+### 📦 Data Engineering
 
 * Large-scale KPI preprocessing
 * Data cleaning
@@ -672,7 +675,7 @@ This project covers a complete applied Machine Learning workflow.
 * Temporal data processing
 * Feature engineering
 
-### Machine Learning
+### 🤖 Machine Learning
 
 * Unsupervised learning
 * K-Means clustering
@@ -682,26 +685,26 @@ This project covers a complete applied Machine Learning workflow.
 * Model benchmarking
 * Hyperparameter optimization
 
-### Deep Learning
+### 🧠 Deep Learning
 
 * LSTM
 * GRU
 * Temporal Attention
 
-### Time-Series / Forecasting
+### ⏱️ Time-Series / Forecasting
 
 * Temporal feature engineering
 * Chronological train/test splitting
 * Multi-horizon prediction
 * H+1 / H+3 / H+6 forecasting
 
-### Explainable AI
+### 💡 Explainable AI
 
 * SHAP
 * Feature importance
 * Local prediction explanations
 
-### Deployment / MLOps
+### 🚀 Deployment / MLOps
 
 * Model serialization
 * Joblib
